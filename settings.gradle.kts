@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Geolocalization_Application"
 include(":app")
- 
