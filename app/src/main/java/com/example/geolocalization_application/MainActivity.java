@@ -1,55 +1,60 @@
 package com.example.geolocalization_application;
 
 
+import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
-import org.osmdroid.config.Configuration;
-import org.osmdroid.views.MapView;
-import org.osmdroid.util.GeoPoint;
-
-import java.io.File;
-
-
-import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
-
-    private MapView map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Set the user agent for the app to avoid getting blocked by OSM servers
-        Configuration.getInstance().setUserAgentValue("com.example.geolocalization_application");
-
-
-        // Set the default cache directory for map tiles
-        Configuration.getInstance().setOsmdroidBasePath(new File(getCacheDir(), "osmdroid"));
-
         setContentView(R.layout.activity_main);
 
-        // Find the MapView
-        map = findViewById(R.id.map);
+        // Check if permissions are granted
+        if (!PermissionsHelper.arePermissionsGranted(this)) {
+            PermissionsHelper.requestPermissions(this);
+        }
 
-        // Enable zoom controls and gestures
-        map.setMultiTouchControls(true);
+        Button searchBtn = (Button) findViewById(R.id.searchBtn);
+        Button trackBtn = (Button) findViewById(R.id.trackBtn);
 
-        // Set default zoom and location
-        map.getController().setZoom(15.0);
-        GeoPoint startPoint = new GeoPoint(48.858844, 2.294351); // Example: Eiffel Tower
-        map.getController().setCenter(startPoint);
+        searchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, SearchActivity.class);
+                startActivity(i);
+            }
+        });
+
+        trackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, TrackingActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
+    // Handle the permission result
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Cleanup resources
-        if (map != null) {
-            map.onDetach();
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (PermissionsHelper.handlePermissionsResult(requestCode, grantResults)) {
+            // Permissions accordées, continuer l'exécution
+        } else {
+            // Gérer le refus des permissions, peut-être demander de nouveau
+            Toast.makeText(this, "Les permissions sont nécessaires pour l'application", Toast.LENGTH_SHORT).show();
         }
     }
 }
+
+
+
